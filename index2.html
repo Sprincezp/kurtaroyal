@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurta Royale — Where Tradition Meets Modern Elegance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: { 50:'#FDF8E8', 100:'#FBE9B6', 200:'#F5D97A', 300:'#F0C75E', 400:'#D4AF37', 500:'#B8960C', 600:'#9A7D0A', 700:'#7C6408', 800:'#5E4B06', 900:'#403304' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family:'Inter',sans-serif; background:#000; color:#fff; overflow-x:hidden; }
+
+        /* Scroll Progress */
+        #scroll-progress { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,#D4AF37,#F0C75E,#D4AF37); z-index:9999; width:0%; transition:width 0.1s linear; }
+
+        /* Loading Screen */
+        #loading-screen { position:fixed; inset:0; z-index:10000; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.8s ease, visibility 0.8s ease; }
+        #loading-screen.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+        .loader-ring { width:60px; height:60px; border:2px solid rgba(212,175,55,0.1); border-top:2px solid #D4AF37; border-radius:50%; animation:spin 1s linear infinite; }
+        .loader-ring-inner { width:40px; height:40px; border:2px solid rgba(212,175,55,0.05); border-bottom:2px solid #F0C75E; border-radius:50%; animation:spin 0.6s linear infinite reverse; margin:8px auto; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* Canvas */
+        #canvas-container { position:fixed; top:0; left:0; width:100%; height:100%; z-index:1; }
+        #canvas-container canvas { display:block; }
+        .vignette { position:fixed; inset:0; z-index:2; pointer-events:none; background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.6) 100%); }
+
+        /* Content */
+        .content-wrapper { position:relative; z-index:10; }
+
+        /* Glass */
+        .glass { background:rgba(255,255,255,0.03); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.06); }
+        .glass-strong { background:rgba(255,255,255,0.06); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,0.1); }
+
+        /* Gradient Text */
+        .text-gold-gradient { background:linear-gradient(135deg,#FBE9B6,#D4AF37,#B8960C); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .text-gold-gradient-soft { background:linear-gradient(135deg,#F0C75E,#D4AF37); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+        /* Section backgrounds */
+        .section-transparent { background:transparent; }
+        .section-solid { background:rgba(0,0,0,0.92); }
+        .section-solid-heavy { background:rgba(0,0,0,0.97); }
+
+        /* Scroll reveal */
+        .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.active { opacity:1; transform:translateY(0); }
+        .reveal-delay-1 { transition-delay:0.1s; }
+        .reveal-delay-2 { transition-delay:0.2s; }
+        .reveal-delay-3 { transition-delay:0.3s; }
+        .reveal-delay-4 { transition-delay:0.4s; }
+        .reveal-delay-5 { transition-delay:0.5s; }
+
+        /* Hover effects */
+        .hover-lift { transition:transform 0.4s ease, box-shadow 0.4s ease; }
+        .hover-lift:hover { transform:translateY(-6px); box-shadow:0 20px 60px rgba(212,175,55,0.1); }
+        .hover-glow { transition:box-shadow 0.4s ease; }
+        .hover-glow:hover { box-shadow:0 0 40px rgba(212,175,55,0.15); }
+
+        /* Button shimmer */
+        .btn-shimmer { position:relative; overflow:hidden; }
+        .btn-shimmer::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); transition:left 0.6s ease; }
+        .btn-shimmer:hover::after { left:100%; }
+
+        /* Scroll indicator */
+        .scroll-indicator { animation:scrollBounce 2s ease-in-out infinite; }
+        @keyframes scrollBounce { 0%,100% { transform:translateY(0); opacity:0.6; } 50% { transform:translateY(10px); opacity:1; } }
+
+        /* Color swatch */
+        .color-swatch { width:36px; height:36px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all 0.3s ease; position:relative; }
+        .color-swatch.active { border-color:#D4AF37; transform:scale(1.15); }
+        .color-swatch:hover { transform:scale(1.1); }
+        .color-swatch::after { content:''; position:absolute; inset:-6px; border-radius:50%; border:1px solid rgba(212,175,55,0.3); opacity:0; transition:opacity 0.3s; }
+        .color-swatch.active::after { opacity:1; }
+
+        /* Wireframe toggle */
+        #wireframe-toggle { position:fixed; bottom:30px; right:30px; z-index:100; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s ease; }
+        #wireframe-toggle:hover { transform:scale(1.1); }
+
+        /* Pulse dot */
+        .pulse-dot { width:8px; height:8px; border-radius:50%; background:#10B981; position:relative; }
+        .pulse-dot::after { content:''; position:absolute; inset:-4px; border-radius:50%; background:rgba(16,185,129,0.3); animation:pulse-ring 2s ease infinite; }
+        @keyframes pulse-ring { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2); opacity:0; } }
+
+        /* Price strikethrough */
+        .price-old { text-decoration:line-through; text-decoration-color:rgba(255,255,255,0.3); }
+
+        /* Responsive */
+        @media(max-width:768px) {
+            .hero-title { font-size:2.5rem !important; }
+            .section-title { font-size:2rem !important; }
+            #wireframe-toggle { bottom:16px; right:16px; width:38px; height:38px; }
+        }
+        @media(max-width:480px) {
+            .hero-title { font-size:2rem !important; }
+            .section-title { font-size:1.6rem !important; }
+        }
+
+        /* Reduced motion */
+        @media(prefers-reduced-motion:reduce) {
+            .reveal { transition:opacity 0.3s ease; transform:none !important; }
+            .reveal.active { transform:none !important; }
+            .scroll-indicator { animation:none; }
+            .loader-ring, .loader-ring-inner { animation-duration:3s; }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:#000; }
+        ::-webkit-scrollbar-thumb { background:rgba(212,175,55,0.3); border-radius:3px; }
+        ::-webkit-scrollbar-thumb:hover { background:rgba(212,175,55,0.5); }
+
+        /* Star rating */
+        .star { color:#D4AF37; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-ring"><div class="loader-ring-inner"></div></div>
+        <p class="mt-6 text-sm font-light tracking-widest text-gold-gradient uppercase">Loading Experience</p>
+        <p id="load-percent" class="mt-2 text-xs text-white/30 font-light">0%</p>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div id="scroll-progress"></div>
+
+    <!-- Vignette Overlay -->
+    <div class="vignette"></div>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Wireframe Toggle -->
+    <button id="wireframe-toggle" class="glass hover-glow" title="Toggle Wireframe">
+        <iconify-icon icon="solar:settings-minimalistic-linear" width="20" style="color:#D4AF37"></iconify-icon>
+    </button>
+
+    <!-- Color Picker -->
+    <div class="fixed bottom-30px right-80px z-100 flex items-center gap-2">
+        <div id="color-picker-panel" class="glass rounded-full px-3 py-2 flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300">
+            <button class="color-btn w-5 h-5 rounded-full border-2 border-white/20" data-color="#F5F0E1" style="background:#F5F0E1"></button>
+            <button class="color-btn w-5 h-5 rounded-full border-2 border-white/20" data-color="#1E3A5F" style="background:#1E3A5F"></button>
+            <button class="color-btn w-5 h-5 rounded-full border-2 border-white/20" data-color="#800020" style="background:#800020"></button>
+            <button class="color-btn w-5 h-5 rounded-full border-2 border-white/20" data-color="#0F5132" style="background:#0F5132"></button>
+            <button class="color-btn w-5 h-5 rounded-full border-2 border-white/20" data-color="#2D2D2D" style="background:#2D2D2D"></button>
+        </div>
+        <button id="color-picker-toggle" class="glass hover-glow" title="Change Color">
+            <iconify-icon icon="solar:palette-round-linear" width="20" style="color:#D4AF37"></iconify-icon>
+        </button>
+    </div>
+
+    <style>
+        #color-picker-panel { transform: translateX(10px); }
+        #color-picker-panel.open { opacity: 1; pointer-events: all; transform: translateX(0); }
+        .color-btn:hover { transform: scale(1.2); }
+    </style>
+
+    <!-- Content -->
+    <div class="content-wrapper">
+
+        <!-- Navbar -->
+        <nav id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <a href="#" class="flex items-center gap-2">
+                    <iconify-icon icon="solar:crown-star-linear" width="24" style="color:#D4AF37"></iconify-icon>
+                    <span class="font-serif text-lg font-semibold tracking-wide">Kurta Royale</span>
+                </a>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-sm font-light text-white/60 hover:text-gold-300 transition-colors duration-300">Features</a>
+                    <a href="#design" class="text-sm font-light text-white/60 hover:text-gold-300 transition-colors duration-300">Design</a>
+                    <a href="#experience" class="text-sm font-light text-white/60 hover:text-gold-300 transition-colors duration-300">Experience</a>
+                    <a href="#testimonials" class="text-sm font-light text-white/60 hover:text-gold-300 transition-colors duration-300">Reviews</a>
+                    <a href="#pricing" class="text-sm font-light text-white/60 hover:text-gold-300 transition-colors duration-300">Pricing</a>
+                </div>
+                <a href="#pricing" class="btn-shimmer px-5 py-2 rounded-full bg-gold-400 text-black text-sm font-medium hover:bg-gold-300 transition-colors duration-300">Order Now</a>
+            </div>
+        </nav>
+
+        <!-- ===== HERO SECTION ===== -->
+        <section id="hero" class="scroll-section section-transparent min-h-screen flex items-center relative">
+            <div class="max-w-7xl mx-auto px-6 w-full pt-16">
+                <div class="max-w-xl">
+                    <div class="reveal flex items-center gap-2 mb-6">
+                        <div class="pulse-dot"></div>
+                        <span class="text-xs font-medium tracking-widest uppercase text-gold-400">New Collection 2025</span>
+                    </div>
+                    <h1 class="reveal reveal-delay-1 hero-title font-serif text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
+                        The Art of <br><span class="text-gold-gradient italic">Elegance</span>
+                    </h1>
+                    <p class="reveal reveal-delay-2 text-base md:text-lg font-light text-white/50 leading-relaxed mb-8 max-w-md">
+                        Handcrafted with precision, draped in luxury. Experience the kurta that redefines modern ethnic wear.
+                    </p>
+                    <!-- Social Proof -->
+                    <div class="reveal reveal-delay-3 flex items-center gap-4 mb-8">
+                        <div class="flex -space-x-2">
+                            <img src="https://picsum.photos/seed/avatar1/40/40" class="w-9 h-9 rounded-full border-2 border-black object-cover" alt="">
+                            <img src="https://picsum.photos/seed/avatar2/40/40" class="w-9 h-9 rounded-full border-2 border-black object-cover" alt="">
+                            <img src="https://picsum.photos/seed/avatar3/40/40" class="w-9 h-9 rounded-full border-2 border-black object-cover" alt="">
+                            <img src="https://picsum.photos/seed/avatar4/40/40" class="w-9 h-9 rounded-full border-2 border-black object-cover" alt="">
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1">
+                                <iconify-icon icon="solar:star-bold" class="star" width="14"></iconify-icon>
+                                <iconify-icon icon="solar:star-bold" class="star" width="14"></iconify-icon>
+                                <iconify-icon icon="solar:star-bold" class="star" width="14"></iconify-icon>
+                                <iconify-icon icon="solar:star-bold" class="star" width="14"></iconify-icon>
+                                <iconify-icon icon="solar:star-bold" class="star" width="14"></iconify-icon>
+                            </div>
+                            <p class="text-xs text-white/40 font-light">2,400+ happy customers</p>
+                        </div>
+                    </div>
+                    <!-- CTAs -->
+                    <div class="reveal reveal-delay-4 flex items-center gap-4">
+                        <a href="#pricing" class="btn-shimmer px-8 py-3.5 rounded-full bg-gold-400 text-black font-semibold text-sm hover:bg-gold-300 transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]">
+                            Shop Now — ₹4,999
+                        </a>
+                        <a href="#experience" class="group flex items-center gap-2 text-sm font-light text-white/50 hover:text-gold-300 transition-colors duration-300">
+                            <span>Explore 3D</span>
+                            <iconify-icon icon="solar:arrow-right-linear" width="16" class="transition-transform duration-300 group-hover:translate-x-1"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Scroll Indicator -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-indicator">
+                <iconify-icon icon="solar:alt-arrow-down-linear" width="20" style="color:rgba(212,175,55,0.5)"></iconify-icon>
+            </div>
+        </section>
+
+        <!-- ===== FEATURES SECTION ===== -->
+        <section id="features" class="scroll-section section-solid min-h-screen flex items-center py-24">
+            <div class="max-w-7xl mx-auto px-6 w-full">
+                <div class="text-center mb-16">
+                    <p class="reveal text-xs font-medium tracking-widest uppercase text-gold-400 mb-3">Crafted to Perfection</p>
+                    <h2 class="reveal reveal-delay-1 section-title font-serif text-3xl md:text-5xl font-bold tracking-tight">Why Choose <span class="text-gold-gradient">Kurta Royale</span></h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Feature 1 -->
+                    <div class="reveal reveal-delay-1 glass hover-lift rounded-2xl p-8 group">
+                        <div class="w-12 h-12 rounded-xl bg-gold-400/10 flex items-center justify-center mb-5 group-hover:bg-gold-400/20 transition-colors duration-300">
+                            <iconify-icon icon="solar:hand-stars-linear" width="24" style="color:#D4AF37"></iconify-icon>
+                        </div>
+                        <h3 class="font-serif text-lg font-semibold mb-3">Handcrafted Detail</h3>
+                        <p class="text-sm font-light text-white/45 leading-relaxed">Every stitch tells a story. Our master artisans spend 40+ hours on each piece, ensuring flawless craftsmanship.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="reveal reveal-delay-2 glass hover-lift rounded-2xl p-8 group">
+                        <div class="w-12 h-12 rounded-xl bg-gold-400/10 flex items-center justify-center mb-5 group-hover:bg-gold-400/20 transition-colors duration-300">
+                            <iconify-icon icon="solar:sun-fog-linear" width="24" style="color:#D4AF37"></iconify-icon>
+                        </div>
+                        <h3 class="font-serif text-lg font-semibold mb-3">Premium Fabric</h3>
+                        <p class="text-sm font-light text-white/45 leading-relaxed">100% Egyptian cotton with a silk-blend finish. Breathable, soft, and luxuriously smooth against the skin.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="reveal reveal-delay-3 glass hover-lift rounded-2xl p-8 group">
+                        <div class="w-12 h-12 rounded-xl bg-gold-400/10 flex items-center justify-center mb-5 group-hover:bg-gold-400/20 transition-colors duration-300">
+                            <iconify-icon icon="solar:ruler-angular-linear" width="24" style="color:#D4AF37"></iconify-icon>
+                        </div>
+                        <h3 class="font-serif text-lg font-semibold mb-3">Perfect Fit</h3>
+                        <p class="text-sm font-light text-white/45 leading-relaxed">Smart sizing algorithm with 15 body measurements. Get a tailored fit without visiting a store.</p>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div class="reveal reveal-delay-2 glass hover-lift rounded-2xl p-8 group">
+                        <div class="w-12 h-12 rounded-xl bg-gold-400/10 flex items-center justify-center mb-5 group-hover:bg-gold-400/20 transition-colors duration-300">
+                            <iconify-icon icon="solar:palette-round-linear" width="24" style="color:#D4AF37"></iconify-icon>
+                        </div>
+                        <h3 class="font-serif text-lg font-semibold mb-3">Timeless Design</h3>
+                        <p class="text-sm font-light text-white/45 leading-relaxed">Inspired by Mughal architecture and modern minimalism. A design that transcends seasons and trends.</p>
+                    </div>
+                    <!-- Feature 5 -->
+                    <div class="reveal reveal-delay-3 glass hover-lift rounded-2xl p-8 group">
+                        <div class="w-12 h-12 rounded-xl bg-gold-400/10 flex items-center justify-center mb-5 group-hover:bg-gold-400/20 transition-colors duration-300">
+                            <iconify-icon icon="solar:washing-machine-linear" width="24" style="color:#D4AF37"></iconify-icon>
+                        </div>
+                        <h3 class="font-serif text-lg font-semibold mb-3">Effortless Care</h3>
+                        <p class="text-sm font-light text-white/45 leading-relaxed">Machine washable, wrinkle-resistant, and color-lock technology that keeps it looking new for years.</p>
+                    </div>
+                    <!-- Feature 6 -->
+                    <div class="reveal reveal-delay-4 glass hover-lift rounded-2xl p-8 group">
+                        <div class="w-12 h-12 rounded-xl bg-gold-400/10 flex items-center justify-center mb-5 group-hover:bg-gold-400/20 transition-colors duration-300">
+                            <iconify-icon icon="solar:calendar-linear" width="24" style="color:#D4AF37"></iconify-icon>
+                        </div>
+                        <h3 class="font-serif text-lg font-semibold mb-3">Versatile Style</h3>
+                        <p class="text-sm font-light text-white/45 leading-relaxed">From festive celebrations to boardroom meetings. Pair it with churidar, jeans, or dhoti — it always works.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== DESIGN SECTION ===== -->
+        <section id="design" class="scroll-section section-transparent min-h-screen flex items-center py-24">
+            <div class="max-w-7xl mx-auto px-6 w-full">
+                <div class="max-w-lg">
+                    <p class="reveal text-xs font-medium tracking-widest uppercase text-gold-400 mb-3">Design Philosophy</p>
+                    <h2 class="reveal reveal-delay-1 section-title font-serif text-3xl md:text-5xl font-bold tracking-tight mb-6">
+                        Every Thread <br><span class="text-gold-gradient italic">Speaks Luxury</span>
+                    </h2>
+                    <p class="reveal reveal-delay-2 text-base font-light text-white/45 leading-relaxed mb-10">
+                        The Kurta Royale features a Mandarin collar with subtle gold thread embroidery, a tailored silhouette that flows effortlessly, and a hidden pocket system designed for the modern gentleman.
+                    </p>
+                    <!-- Color Switcher -->
+                    <div class="reveal reveal-delay-3">
+                        <p class="text-xs font-medium tracking-widest uppercase text-white/40 mb-4">Choose Your Color</p>
+                        <div class="flex items-center gap-4" id="color-switcher">
+                            <button class="color-swatch active" data-color="#F5F0E1" data-light="#F5F0E1" style="background:#F5F0E1" title="Ivory"></button>
+                            <button class="color-swatch" data-color="#1E3A5F" data-light="#4A7AB5" style="background:#1E3A5F" title="Royal Blue"></button>
+                            <button class="color-swatch" data-color="#800020" data-light="#C44060" style="background:#800020" title="Maroon"></button>
+                            <button class="color-swatch" data-color="#0F5132" data-light="#10B981" style="background:#0F5132" title="Emerald"></button>
+                            <button class="color-swatch" data-color="#2D2D2D" data-light="#666666" style="background:#2D2D2D; border:1px solid rgba(255,255,255,0.15)" title="Charcoal"></button>
+                        </div>
+                        <p id="color-name" class="mt-3 text-sm text-gold-400 font-light">Ivory</p>
+                    </div>
+                    <!-- Design details -->
+                    <div class="reveal reveal-delay-4 grid grid-cols-2 gap-4 mt-10">
+                        <div class="glass rounded-xl p-4">
+                            <p class="text-2xl font-serif font-bold text-gold-gradient">40h</p>
+                            <p class="text-xs text-white/35 font-light mt-1">Handwork per piece</p>
+                        </div>
+                        <div class="glass rounded-xl p-4">
+                            <p class="text-2xl font-serif font-bold text-gold-gradient">180</p>
+                            <p class="text-xs text-white/35 font-light mt-1">Thread count per inch</p>
+                        </div>
+                        <div class="glass rounded-xl p-4">
+                            <p class="text-2xl font-serif font-bold text-gold-gradient">100%</p>
+                            <p class="text-xs text-white/35 font-light mt-1">Egyptian cotton</p>
+                        </div>
+                        <div class="glass rounded-xl p-4">
+                            <p class="text-2xl font-serif font-bold text-gold-gradient">5</p>
+                            <p class="text-xs text-white/35 font-light mt-1">Signature colors</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== EXPERIENCE SECTION ===== -->
+        <section id="experience" class="scroll-section section-transparent min-h-screen flex items-center justify-center py-24">
+            <div class="max-w-7xl mx-auto px-6 w-full text-center">
+                <p class="reveal text-xs font-medium tracking-widest uppercase text-gold-400 mb-3">Immersive 3D</p>
+                <h2 class="reveal reveal-delay-1 section-title font-serif text-3xl md:text-5xl font-bold tracking-tight mb-6">
+                    See It From <span class="text-gold-gradient italic">Every Angle</span>
+                </h2>
+                <p class="reveal reveal-delay-2 text-base font-light text-white/45 leading-relaxed max-w-lg mx-auto mb-8">
+                    Move your mouse to explore the kurta in full 3D. Notice the intricate embroidery, the fabric drape, and the premium finish — all visible before you order.
+                </p>
+                <div class="reveal reveal-delay-3 flex items-center justify-center gap-6">
+                    <div class="glass rounded-xl px-6 py-4 flex items-center gap-3">
+                        <iconify-icon icon="solar:cursor-linear" width="20" style="color:#D4AF37"></iconify-icon>
+                        <span class="text-sm font-light text-white/50">Drag to explore</span>
+                    </div>
+                    <div class="glass rounded-xl px-6 py-4 flex items-center gap-3">
+                        <iconify-icon icon="solar:scroll-linear" width="20" style="color:#D4AF37"></iconify-icon>
+                        <span class="text-sm font-light text-white/50">Scroll to view</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== TESTIMONIALS SECTION ===== -->
+        <section id="testimonials" class="scroll-section section-solid-heavy min-h-screen flex items-center py-24">
+            <div class="max-w-7xl mx-auto px-6 w-full">
+                <div class="text-center mb-16">
+                    <p class="reveal text-xs font-medium tracking-widest uppercase text-gold-400 mb-3">Customer Love</p>
+                    <h2 class="reveal reveal-delay-1 section-title font-serif text-3xl md:text-5xl font-bold tracking-tight">What They <span class="text-gold-gradient">Say</span></h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Testimonial 1 -->
+                    <div class="reveal reveal-delay-1 glass hover-lift rounded-2xl p-8">
+                        <div class="flex items-center gap-1 mb-4">
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                        </div>
+                        <p class="text-sm font-light text-white/55 leading-relaxed mb-6">"The fabric quality is unlike anything I've worn before. I ordered the Ivory for my sister's wedding and received more compliments than the groom. Absolute masterpiece."</p>
+                        <div class="flex items-center gap-3">
+                            <img src="https://picsum.photos/seed/person1/48/48" class="w-10 h-10 rounded-full object-cover" alt="">
+                            <div>
+                                <p class="text-sm font-medium">Arjun Mehta</p>
+                                <p class="text-xs text-white/30 font-light">Mumbai</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Testimonial 2 -->
+                    <div class="reveal reveal-delay-2 glass hover-lift rounded-2xl p-8">
+                        <div class="flex items-center gap-1 mb-4">
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                        </div>
+                        <p class="text-sm font-light text-white/55 leading-relaxed mb-6">"I was skeptical about buying ethnic wear online, but the 3D preview sold me. What arrived was even better than what I saw on screen. The fit is perfect."</p>
+                        <div class="flex items-center gap-3">
+                            <img src="https://picsum.photos/seed/person2/48/48" class="w-10 h-10 rounded-full object-cover" alt="">
+                            <div>
+                                <p class="text-sm font-medium">Vikram Singh</p>
+                                <p class="text-xs text-white/30 font-light">Delhi</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Testimonial 3 -->
+                    <div class="reveal reveal-delay-3 glass hover-lift rounded-2xl p-8">
+                        <div class="flex items-center gap-1 mb-4">
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" class="star" width="16"></iconify-icon>
+                        </div>
+                        <p class="text-sm font-light text-white/55 leading-relaxed mb-6">"Bought three colors already — Ivory, Maroon, and Royal Blue. Each one feels unique yet equally premium. This is the only brand I trust for kurtas now."</p>
+                        <div class="flex items-center gap-3">
+                            <img src="https://picsum.photos/seed/person3/48/48" class="w-10 h-10 rounded-full object-cover" alt="">
+                            <div>
+                                <p class="text-sm font-medium">Rahul Kapoor</p>
+                                <p class="text-xs text-white/30 font-light">Bangalore</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PRICING SECTION ===== -->
+        <section id="pricing" class="scroll-section section-transparent min-h-screen flex items-center py-24">
+            <div class="max-w-7xl mx-auto px-6 w-full">
+                <div class="text-center mb-12">
+                    <p class="reveal text-xs font-medium tracking-widest uppercase text-gold-400 mb-3">Limited Time Offer</p>
+                    <h2 class="reveal reveal-delay-1 section-title font-serif text-3xl md:text-5xl font-bold tracking-tight">Invest in <span class="text-gold-gradient">Timeless Style</span></h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="max-w-md mx-auto w-full">
+                        <div class="reveal glass-strong hover-glow rounded-3xl p-6 md:p-10 text-center relative overflow-hidden">
+                        <!-- Discount badge -->
+                        <div class="absolute top-0 right-0 bg-emerald-500 text-black text-xs font-bold px-4 py-1.5 rounded-bl-2xl">SAVE 38%</div>
+                        <!-- Glow -->
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-gold-400/10 rounded-full blur-[80px]"></div>
+                        <div class="relative">
+                            <p class="text-sm font-light text-white/40 mb-1">Kurta Royale — Single Piece</p>
+                            <h3 class="font-serif text-2xl font-bold mb-6 text-gold-gradient">Premium Edition</h3>
+                            <!-- Price -->
+                            <div class="flex items-end justify-center gap-3 mb-2">
+                                <span class="text-4xl font-bold font-serif">₹4,999</span>
+                                <span class="price-old text-lg text-white/30 font-light mb-1">₹7,999</span>
+                            </div>
+                            <p class="text-xs text-white/30 font-light mb-8">Inclusive of all taxes. Free shipping.</p>
+                            <!-- Includes -->
+                            <div class="space-y-3 mb-8 text-left">
+                                <div class="flex items-center gap-3">
+                                    <iconify-icon icon="solar:check-circle-linear" width="18" style="color:#10B981"></iconify-icon>
+                                    <span class="text-sm font-light text-white/55">Premium Egyptian Cotton Kurta</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <iconify-icon icon="solar:check-circle-linear" width="18" style="color:#10B981"></iconify-icon>
+                                    <span class="text-sm font-light text-white/55">Matching embroidered stole</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <iconify-icon icon="solar:check-circle-linear" width="18" style="color:#10B981"></iconify-icon>
+                                    <span class="text-sm font-light text-white/55">Luxury packaging & garment bag</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <iconify-icon icon="solar:check-circle-linear" width="18" style="color:#10B981"></iconify-icon>
+                                    <span class="text-sm font-light text-white/55">Free alterations within 30 days</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <iconify-icon icon="solar:check-circle-linear" width="18" style="color:#10B981"></iconify-icon>
+                                    <span class="text-sm font-light text-white/55">7-day easy returns</span>
+                                </div>
+                            </div>
+                            <button class="btn-shimmer w-full py-4 rounded-full bg-gold-400 text-black font-semibold text-sm hover:bg-gold-300 transition-all duration-300 hover:shadow-[0_0_50px_rgba(212,175,55,0.3)]">
+                                Add to Cart — ₹4,999
+                            </button>
+                            <p class="text-xs text-white/20 font-light mt-4 flex items-center gap-1">
+                                <iconify-icon icon="solar:shield-check-linear" width="14"></iconify-icon>
+                                Secure payment · SSL encrypted
+                            </p>
+                        </div>
+                    </div>
+                    <div class="hidden lg:block"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="section-solid-heavy py-20 border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <div class="flex items-center justify-center gap-2 mb-4">
+                        <iconify-icon icon="solar:crown-star-linear" width="28" style="color:#D4AF37"></iconify-icon>
+                        <span class="font-serif text-2xl font-semibold tracking-wide">Kurta Royale</span>
+                    </div>
+                    <p class="text-sm font-light text-white/35 max-w-sm mx-auto mb-8">Where tradition meets modern elegance. Crafted for those who appreciate the finer things.</p>
+                    <a href="#pricing" class="btn-shimmer inline-flex px-8 py-3.5 rounded-full bg-gold-400 text-black font-semibold text-sm hover:bg-gold-300 transition-all duration-300 hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]">
+                        Order Your Kurta Today
+                    </a>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                    <div>
+                        <p class="text-xs font-medium tracking-widest uppercase text-white/30 mb-4">Product</p>
+                        <div class="space-y-2">
+                            <a href="#features" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Features</a>
+                            <a href="#design" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Design</a>
+                            <a href="#pricing" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Pricing</a>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium tracking-widest uppercase text-white/30 mb-4">Support</p>
+                        <div class="space-y-2">
+                            <a href="#" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Size Guide</a>
+                            <a href="#" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Shipping</a>
+                            <a href="#" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Returns</a>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium tracking-widest uppercase text-white/30 mb-4">Company</p>
+                        <div class="space-y-2">
+                            <a href="#" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">About</a>
+                            <a href="#" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Artisans</a>
+                            <a href="#" class="block text-sm font-light text-white/40 hover:text-gold-300 transition-colors">Contact</a>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium tracking-widest uppercase text-white/30 mb-4">Connect</p>
+                        <div class="flex items-center gap-3">
+                            <a href="#" class="w-9 h-9 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors">
+                                <iconify-icon icon="mdi:instagram" width="18" style="color:rgba(255,255,255,0.5)"></iconify-icon>
+                            </a>
+                            <a href="#" class="w-9 h-9 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors">
+                                <iconify-icon icon="mdi:twitter" width="18" style="color:rgba(255,255,255,0.5)"></iconify-icon>
+                            </a>
+                            <a href="#" class="w-9 h-9 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors">
+                                <iconify-icon icon="mdi:facebook" width="18" style="color:rgba(255,255,255,0.5)"></iconify-icon>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p class="text-xs text-white/20 font-light">© 2025 Kurta Royale. All rights reserved.</p>
+                    <div class="flex items-center gap-4">
+                        <a href="#" class="text-xs text-white/20 font-light hover:text-white/40 transition-colors">Privacy</a>
+                        <a href="#" class="text-xs text-white/20 font-light hover:text-white/40 transition-colors">Terms</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== THREE.JS MODULE ===== -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        // ========== CONFIG ==========
+        const isMobile = window.innerWidth < 768;
+        const PARTICLE_COUNT = isMobile ? 150 : 400;
+        const MAX_PIXEL_RATIO = 2;
+        const LERP_SPEED = 3;
+
+        const KURTA_COLORS = [
+            { name:'Ivory', hex:'#F5F0E1', light:'#F5F0E1' },
+            { name:'Royal Blue', hex:'#1E3A5F', light:'#4A7AB5' },
+            { name:'Maroon', hex:'#800020', light:'#C44060' },
+            { name:'Emerald', hex:'#0F5132', light:'#10B981' },
+            { name:'Charcoal', hex:'#2D2D2D', light:'#666666' },
+        ];
+
+        // Per-section 3D states: [posX, posY, posZ], [rotX, rotY, rotZ], scale
+        const SECTION_STATES = [
+            { pos:[0.8, 0, 0],    rot:[0, 0, 0],           scale:1.0  }, // Hero
+            { pos:[2.5, 0.3, -2], rot:[0, 0.5, 0],         scale:0.8  }, // Features
+            { pos:[0, 0, 0],      rot:[0, 1.0, 0],         scale:1.15 }, // Design
+            { pos:[0, 0, 0.5],    rot:[0, 1.5, 0],         scale:1.3  }, // Experience
+            { pos:[-2, 0.5, -2],  rot:[0, 2.0, 0],         scale:0.7  }, // Testimonials
+            { pos:[1.8, 0, 0],    rot:[0, 2.5, 0],         scale:1.2  }, // Pricing
+            { pos:[0, -2, -5],    rot:[0, 3.0, 0],         scale:0.3  }, // Footer
+        ];
+
+        // ========== STATE ==========
+        let scene, camera, renderer, clock;
+        let modelGroup, modelMeshes = [];
+        let particles, orbitRing;
+        let keyLight, fillLight, rimLight;
+        let mouseX = 0, mouseY = 0;
+        let targetMouseX = 0, targetMouseY = 0;
+        let currentSection = 0;
+        let isWireframe = false;
+        let isModelLoaded = false;
+        let currentColorHex = '#F5F0E1';
+
+        // ========== HELPERS ==========
+        function lerp(a, b, t) { return a + (b - a) * t; }
+
+        // ========== INIT ==========
+        function init() {
+            clock = new THREE.Clock();
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.04);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 0, 6);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.3;
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            createLights();
+            loadModel();
+            createParticles();
+            createOrbitRing();
+
+            // Events
+            window.addEventListener('resize', onResize);
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+            animate();
+        }
+
+        // ========== LIGHTS ==========
+        function createLights() {
+            // Ambient — soft fill (brighter for dark sections)
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambient);
+
+            // Key light — warm gold
+            keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+            keyLight.position.set(3, 5, 5);
+            scene.add(keyLight);
+
+            // Fill light — bright white
+            fillLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            fillLight.position.set(-5, 2, 3);
+            scene.add(fillLight);
+
+            // Rim light — white backlight for glow
+            rimLight = new THREE.PointLight(0xffffff, 2, 12);
+            rimLight.position.set(0, -1, -4);
+            scene.add(rimLight);
+
+            // Top spot — dramatic
+            const spot = new THREE.SpotLight(0xffffff, 1.5, 25, Math.PI / 5, 0.4);
+            spot.position.set(0, 10, 3);
+            scene.add(spot);
+        }
+
+        // ========== MODEL LOADING ==========
+        function loadModel() {
+            modelGroup = new THREE.Group();
+            scene.add(modelGroup);
+
+            const loader = new GLTFLoader();
+            const loadPercent = document.getElementById('load-percent');
+
+            loader.load(
+                'tmpkiciehot.glb',
+                (gltf) => {
+                    const model = gltf.scene;
+
+                    // Center and scale
+                    const box = new THREE.Box3().setFromObject(model);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const desiredSize = 2.5;
+                    const scaleFactor = desiredSize / Math.max(maxDim, 0.001);
+
+                    model.position.sub(center);
+                    model.scale.setScalar(scaleFactor);
+                    modelGroup.add(model);
+
+                    // Traverse and apply/enhance materials
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+
+                            // Enhance or replace material
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material = child.material.map(m => enhanceMaterial(m));
+                                } else {
+                                    child.material = enhanceMaterial(child.material);
+                                }
+                            }
+                            modelMeshes.push(child);
+                        }
+                    });
+
+                    isModelLoaded = true;
+                    hideLoadingScreen();
+                },
+                (progress) => {
+                    let pct = 0;
+                    if (progress.total > 0) {
+                        pct = Math.round((progress.loaded / progress.total) * 100);
+                    } else {
+                        pct = Math.min(Math.round((progress.loaded / 5000000) * 80), 80);
+                    }
+                    if (loadPercent) loadPercent.textContent = pct + '%';
+                },
+                (error) => {
+                    console.warn('GLB load failed, using fallback geometry:', error);
+                    createFallbackGeometry();
+                    isModelLoaded = true;
+                    hideLoadingScreen();
+                }
+            );
+
+            // Timeout fallback — if model takes too long
+            setTimeout(() => {
+                if (!isModelLoaded) {
+                    console.warn('Model load timed out, using fallback');
+                    if (modelGroup.children.length === 0) {
+                        createFallbackGeometry();
+                    }
+                    isModelLoaded = true;
+                    hideLoadingScreen();
+                }
+            }, 8000);
+        }
+
+        function enhanceMaterial(mat) {
+            // Create a clone with enhanced properties
+            const newMat = mat.clone();
+            if (newMat.isMeshStandardMaterial || newMat.isMeshPhongMaterial) {
+                newMat.metalness = Math.max(newMat.metalness || 0, 0.08);
+                newMat.roughness = Math.min(newMat.roughness !== undefined ? newMat.roughness : 0.7, 0.75);
+                newMat.envMapIntensity = 1.5;
+            } else if (newMat.isMeshBasicMaterial) {
+                // Convert basic to standard for lighting
+                const color = newMat.color ? newMat.color.clone() : new THREE.Color(currentColorHex);
+                const standardMat = new THREE.MeshStandardMaterial({
+                    color: color,
+                    metalness: 0.08,
+                    roughness: 0.65,
+                    map: newMat.map || null,
+                    transparent: newMat.transparent || false,
+                    opacity: newMat.opacity !== undefined ? newMat.opacity : 1,
+                });
+                newMat.dispose();
+                return standardMat;
+            }
+            return newMat;
+        }
+
+        // ========== FALLBACK GEOMETRY ==========
+        function createFallbackGeometry() {
+            // Create a stylized abstract form representing a garment
+            const group = new THREE.Group();
+
+            // Main body — elongated shape
+            const bodyGeo = new THREE.CylinderGeometry(0.4, 0.6, 2.2, 32, 1);
+            const bodyMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(currentColorHex),
+                metalness: 0.08,
+                roughness: 0.65,
+            });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0;
+            group.add(body);
+            modelMeshes.push(body);
+
+            // Collar
+            const collarGeo = new THREE.TorusGeometry(0.35, 0.06, 16, 32);
+            const collarMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color('#D4AF37'),
+                metalness: 0.6,
+                roughness: 0.3,
+            });
+            const collar = new THREE.Mesh(collarGeo, collarMat);
+            collar.position.y = 1.1;
+            collar.rotation.x = Math.PI / 2;
+            group.add(collar);
+
+            // Decorative band
+            const bandGeo = new THREE.TorusGeometry(0.55, 0.03, 16, 48);
+            const bandMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color('#D4AF37'),
+                metalness: 0.5,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.7,
+            });
+            const band = new THREE.Mesh(bandGeo, bandMat);
+            band.position.y = -0.2;
+            band.rotation.x = Math.PI / 2;
+            group.add(band);
+
+            modelGroup.add(group);
+        }
+
+        // ========== PARTICLES ==========
+        function createParticles() {
+            const positions = new Float32Array(PARTICLE_COUNT * 3);
+            const sizes = new Float32Array(PARTICLE_COUNT);
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                positions[i * 3]     = (Math.random() - 0.5) * 12;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+                sizes[i] = Math.random() * 2 + 0.5;
+            }
+
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            // Create a soft circular texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            gradient.addColorStop(0, 'rgba(212,175,55,0.8)');
+            gradient.addColorStop(0.4, 'rgba(212,175,55,0.3)');
+            gradient.addColorStop(1, 'rgba(212,175,55,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 32, 32);
+            const texture = new THREE.CanvasTexture(canvas);
+
+            const mat = new THREE.PointsMaterial({
+                map: texture,
+                size: 0.06,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.6,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+            });
+
+            particles = new THREE.Points(geo, mat);
+            scene.add(particles);
+        }
+
+        // ========== ORBIT RING ==========
+        function createOrbitRing() {
+            const geo = new THREE.TorusGeometry(2.0, 0.008, 16, 128);
+            const mat = new THREE.MeshBasicMaterial({
+                color: 0xD4AF37,
+                transparent: true,
+                opacity: 0.25,
+            });
+            orbitRing = new THREE.Mesh(geo, mat);
+            orbitRing.rotation.x = Math.PI * 0.45;
+            scene.add(orbitRing);
+
+            // Second ring
+            const geo2 = new THREE.TorusGeometry(2.5, 0.005, 16, 128);
+            const mat2 = new THREE.MeshBasicMaterial({
+                color: 0xD4AF37,
+                transparent: true,
+                opacity: 0.1,
+            });
+            const ring2 = new THREE.Mesh(geo2, mat2);
+            ring2.rotation.x = Math.PI * 0.3;
+            ring2.rotation.y = Math.PI * 0.2;
+            scene.add(ring2);
+            // Store reference for animation
+            orbitRing._ring2 = ring2;
+        }
+
+        // ========== SCROLL HANDLER ==========
+        function onScroll() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+
+            // Update progress bar
+            document.getElementById('scroll-progress').style.width = `${progress * 100}%`;
+
+            // Find current section
+            const sections = document.querySelectorAll('.scroll-section');
+            sections.forEach((section, i) => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5) {
+                    currentSection = i;
+                }
+            });
+
+            // Navbar background
+            const navbar = document.getElementById('navbar');
+            if (scrollTop > 50) {
+                navbar.classList.add('glass');
+                navbar.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            } else {
+                navbar.classList.remove('glass');
+                navbar.style.borderBottom = 'none';
+            }
+        }
+
+        // ========== MOUSE HANDLER ==========
+        function onMouseMove(e) {
+            targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        }
+
+        // ========== RESIZE ==========
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ========== ANIMATE ==========
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = Math.min(clock.getDelta(), 0.05); // Clamp delta
+            const time = clock.getElapsedTime();
+            const t = Math.min(delta * LERP_SPEED, 1);
+
+            // Smooth mouse
+            mouseX = lerp(mouseX, targetMouseX, t);
+            mouseY = lerp(mouseY, targetMouseY, t);
+
+            if (modelGroup) {
+                const state = SECTION_STATES[Math.min(currentSection, SECTION_STATES.length - 1)];
+
+                // Position: scroll-based only
+                const targetPos = new THREE.Vector3(state.pos[0], state.pos[1], state.pos[2]);
+                modelGroup.position.lerp(targetPos, t);
+
+                // Rotation: continuous auto-rotate based on scroll
+                const autoRotate = time * 0.3;
+                modelGroup.rotation.y = lerp(modelGroup.rotation.y, state.rot[1] + autoRotate, t * 0.5);
+                modelGroup.rotation.x = lerp(modelGroup.rotation.x, state.rot[0], t);
+                modelGroup.rotation.z = lerp(modelGroup.rotation.z, state.rot[2], t);
+
+                // Scale lerp
+                const targetScale = new THREE.Vector3(state.scale, state.scale, state.scale);
+                modelGroup.scale.lerp(targetScale, t);
+            }
+
+            // Orbit ring animation
+            if (orbitRing) {
+                orbitRing.rotation.z = time * 0.1;
+                if (orbitRing._ring2) {
+                    orbitRing._ring2.rotation.z = -time * 0.08;
+                }
+            }
+
+            // Particles animation
+            if (particles) {
+                const positions = particles.geometry.attributes.position.array;
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    positions[i * 3 + 1] += Math.sin(time * 0.3 + i * 0.1) * 0.001;
+                    positions[i * 3]     += Math.cos(time * 0.2 + i * 0.05) * 0.0005;
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
+                particles.rotation.y = time * 0.02;
+            }
+
+            // Subtle camera breathing
+            camera.position.x = Math.sin(time * 0.15) * 0.1;
+            camera.position.y = Math.cos(time * 0.1) * 0.05;
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+        }
+
+        // ========== COLOR SWITCHER ==========
+        function initColorSwitcher() {
+            const swatches = document.querySelectorAll('.color-swatch');
+            const nameEl = document.getElementById('color-name');
+
+            swatches.forEach((swatch) => {
+                swatch.addEventListener('click', () => {
+                    swatches.forEach(s => s.classList.remove('active'));
+                    swatch.classList.add('active');
+
+                    const color = swatch.dataset.color;
+                    const light = swatch.dataset.light;
+                    const name = swatch.title;
+                    currentColorHex = color;
+
+                    // Update model material
+                    const threeColor = new THREE.Color(color);
+                    modelMeshes.forEach(mesh => {
+                        if (mesh.material && mesh.material.color) {
+                            mesh.material.color.copy(threeColor);
+                        }
+                    });
+
+                    // Update key light to complement
+                    if (keyLight) {
+                        keyLight.color.set(light);
+                    }
+
+                    // Update UI
+                    if (nameEl) nameEl.textContent = name;
+                });
+            });
+        }
+
+        // ========== WIREFRAME TOGGLE ==========
+        function initWireframeToggle() {
+            const btn = document.getElementById('wireframe-toggle');
+            btn.addEventListener('click', () => {
+                isWireframe = !isWireframe;
+                modelMeshes.forEach(mesh => {
+                    if (mesh.material) {
+                        if (Array.isArray(mesh.material)) {
+                            mesh.material.forEach(m => m.wireframe = isWireframe);
+                        } else {
+                            mesh.material.wireframe = isWireframe;
+                        }
+                    }
+                });
+                btn.style.background = isWireframe ? 'rgba(212,175,55,0.15)' : '';
+            });
+        }
+
+        function initColorPicker() {
+            const toggleBtn = document.getElementById('color-picker-toggle');
+            const panel = document.getElementById('color-picker-panel');
+            const colorBtns = document.querySelectorAll('.color-btn');
+
+            toggleBtn.addEventListener('click', () => {
+                panel.classList.toggle('open');
+            });
+
+            colorBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const color = btn.dataset.color;
+                    currentColorHex = color;
+                    const threeColor = new THREE.Color(color);
+                    modelMeshes.forEach(mesh => {
+                        if (mesh.material && mesh.material.color) {
+                            if (Array.isArray(mesh.material)) {
+                                mesh.material.forEach(m => { if (m.color) m.color.copy(threeColor); });
+                            } else {
+                                mesh.material.color.copy(threeColor);
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // ========== SCROLL REVEAL ==========
+        function initScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // ========== LOADING SCREEN ==========
+        function hideLoadingScreen() {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                // Trigger hero reveals
+                document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('active'));
+            }, 500);
+        }
+
+        // ========== INIT EVERYTHING ==========
+        init();
+        initColorSwitcher();
+        initWireframeToggle();
+        initColorPicker();
+        initScrollReveal();
+    </script>
+</body>
+</html>

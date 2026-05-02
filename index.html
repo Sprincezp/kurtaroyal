@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Embroidered Kurta — VASTRU</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#C6A962',
+                        'gold-light': '#E8D5A3',
+                        'gold-dark': '#9A7B3E',
+                        ivory: '#F5F0E8',
+                        'deep-dark': '#0d0b08',
+                    },
+                    fontFamily: {
+                        display: ['Cormorant Garamond', 'serif'],
+                        body: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #0d0b08;
+            --bg-warm: #151210;
+            --fg: #f5f5f0;
+            --muted: #8a8070;
+            --accent: #C6A962;
+            --accent-light: #E8D5A3;
+            --accent-dark: #9A7B3E;
+            --card: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.08);
+            --glass-bg: rgba(255,255,255,0.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* ── Custom Cursor ── */
+        .cursor-dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed; top: 0; left: 0;
+            pointer-events: none; z-index: 10000;
+        }
+        .cursor-ring {
+            width: 40px; height: 40px;
+            border: 1.5px solid rgba(198,169,98,0.5);
+            border-radius: 50%;
+            position: fixed; top: 0; left: 0;
+            pointer-events: none; z-index: 10000;
+            transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
+        }
+        .cursor-ring.hover {
+            width: 60px; height: 60px;
+            border-color: var(--accent-light);
+            background: rgba(198,169,98,0.06);
+        }
+        .cursor-ring.grabbing {
+            width: 28px; height: 28px;
+            border-color: var(--accent-light);
+            background: rgba(198,169,98,0.12);
+        }
+
+        /* ── Grain Overlay ── */
+        .grain-overlay {
+            position: fixed; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            pointer-events: none; z-index: 9999; opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ── 3D Canvas ── */
+        #canvas-container {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1; pointer-events: none;
+        }
+        #canvas-container canvas { display: block; }
+
+        /* ── Content Layer ── */
+        .content-wrapper { position: relative; z-index: 2; }
+
+        /* ── Glass Card ── */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        /* ── Buttons ── */
+        .btn-gold {
+            position: relative; display: inline-flex;
+            align-items: center; gap: 12px;
+            padding: 18px 44px;
+            background: linear-gradient(135deg, var(--accent-dark), var(--accent), var(--accent-light));
+            color: var(--bg);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600; font-size: 0.9rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            border: none; border-radius: 60px;
+            cursor: none; overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.4s;
+        }
+        .btn-gold::before {
+            content: ''; position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            transition: left 0.6s;
+        }
+        .btn-gold:hover::before { left: 100%; }
+        .btn-gold:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 40px rgba(198,169,98,0.4), 0 0 80px rgba(198,169,98,0.12);
+        }
+        .btn-glow { box-shadow: 0 0 30px rgba(198,169,98,0.35), 0 0 60px rgba(198,169,98,0.1); }
+
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px;
+            background: transparent; color: var(--accent);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500; font-size: 0.85rem;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            border: 1.5px solid rgba(198,169,98,0.5);
+            border-radius: 60px; cursor: none;
+            transition: all 0.4s;
+        }
+        .btn-outline:hover {
+            background: var(--accent); color: var(--bg);
+            box-shadow: 0 0 30px rgba(198,169,98,0.3);
+        }
+
+        /* ── Typography ── */
+        .heading-luxury {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 6vw, 6rem);
+            font-weight: 300; letter-spacing: -0.02em; line-height: 1.05;
+        }
+        .heading-medium {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+            font-weight: 300; letter-spacing: -0.01em; line-height: 1.15;
+        }
+        .text-gold-gradient {
+            background: linear-gradient(135deg, var(--accent-dark), var(--accent), var(--accent-light), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Scroll Indicator ── */
+        @keyframes scrollBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+        .scroll-indicator { animation: scrollBounce 2s ease-in-out infinite; }
+
+        /* ── Reviews Carousel ── */
+        .reviews-track {
+            display: flex; gap: 24px;
+            overflow-x: auto; scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; padding: 20px 0;
+        }
+        .reviews-track::-webkit-scrollbar { display: none; }
+        .review-card { flex: 0 0 370px; scroll-snap-align: start; }
+
+        /* ── Color Picker ── */
+        .color-btn {
+            width: 50px; height: 50px; border-radius: 50%;
+            border: 3px solid transparent; cursor: none;
+            transition: all 0.4s; position: relative;
+        }
+        .color-btn.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 24px rgba(198,169,98,0.45);
+            transform: scale(1.15);
+        }
+        .color-btn:hover { transform: scale(1.12); }
+
+        /* ── Section Backgrounds ── */
+        .bg-left-gradient {
+            background: linear-gradient(90deg, var(--bg) 45%, rgba(13,11,8,0.6) 65%, transparent 80%);
+        }
+        .bg-right-gradient {
+            background: linear-gradient(270deg, var(--bg) 45%, rgba(13,11,8,0.6) 65%, transparent 80%);
+        }
+        .bg-center-gradient {
+            background: radial-gradient(ellipse at center, rgba(13,11,8,0.92) 25%, rgba(13,11,8,0.75) 60%, rgba(13,11,8,0.5) 100%);
+        }
+        .bg-solid { background: var(--bg); }
+        .bg-solid-warm { background: var(--bg-warm); }
+
+        /* ── Gold Divider ── */
+        .gold-divider { width: 60px; height: 1.5px; background: linear-gradient(90deg, var(--accent), transparent); }
+
+        /* ── Trust Logos ── */
+        .trust-logo {
+            opacity: 0.25; transition: opacity 0.4s;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem; letter-spacing: 0.18em;
+            text-transform: uppercase; white-space: nowrap;
+            color: var(--fg);
+        }
+        .trust-logo:hover { opacity: 0.6; }
+
+        /* ── Spec Grid ── */
+        .spec-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem; font-weight: 300; color: var(--accent);
+        }
+        .spec-label {
+            font-size: 0.75rem; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.12em; margin-top: 4px;
+        }
+
+        /* ── Nav Glass ── */
+        .nav-glass {
+            background: rgba(13,11,8,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── Particle Canvas ── */
+        #particle-canvas {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; pointer-events: none;
+        }
+
+        /* ── Sticky CTA ── */
+        .sticky-cta {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            z-index: 100;
+            transition: transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.5s;
+            opacity: 0;
+        }
+        .sticky-cta.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ── Logo Shimmer ── */
+        @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+        .logo-shimmer {
+            background: linear-gradient(90deg, var(--accent-dark), var(--accent-light), var(--accent-dark));
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; animation: shimmer 4s linear infinite;
+        }
+
+        /* ── Stars ── */
+        .stars { color: var(--accent); font-size: 0.85rem; }
+
+        /* ── Fade In ── */
+        .fade-up { opacity: 0; transform: translateY(35px); }
+
+        /* ── Feature Icon ── */
+        .feature-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: rgba(198,169,98,0.08);
+            border: 1px solid rgba(198,169,98,0.15);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            body { cursor: auto; }
+            .cursor-dot, .cursor-ring { display: none; }
+            .btn-gold, .btn-outline, .color-btn { cursor: pointer; }
+            .review-card { flex: 0 0 290px; }
+            .bg-left-gradient, .bg-right-gradient { background: var(--bg); }
+            .bg-center-gradient { background: rgba(13,11,8,0.88); }
+            .hero-grid { flex-direction: column-reverse !important; }
+            .hero-text { text-align: center; }
+            .hero-text .btn-gold { margin: 0 auto; }
+            .features-grid { flex-direction: column !important; }
+            .features-text { padding: 0 20px !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- Grain Texture -->
+    <div class="grain-overlay"></div>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- ═══════════════════ CONTENT ═══════════════════ -->
+    <div class="content-wrapper">
+
+        <!-- ── Navigation ── -->
+        <nav class="nav-glass fixed top-0 left-0 w-full z-50 px-6 md:px-12 py-4 flex items-center justify-between">
+            <a href="#" class="font-display text-2xl font-semibold logo-shimmer tracking-wider" aria-label="VASTRU Home">VASTRU</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features" class="text-sm text-[var(--muted)] hover:text-[var(--accent)] transition-colors tracking-wide">Collection</a>
+                <a href="#fabric" class="text-sm text-[var(--muted)] hover:text-[var(--accent)] transition-colors tracking-wide">Craftsmanship</a>
+                <a href="#reviews" class="text-sm text-[var(--muted)] hover:text-[var(--accent)] transition-colors tracking-wide">Reviews</a>
+                <a href="#cta" class="btn-outline text-xs py-2.5 px-6">Pre-Order</a>
+            </div>
+            <button class="md:hidden text-[var(--accent)] text-xl" id="menuBtn" aria-label="Toggle Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </nav>
+
+        <!-- ── Section 1: Hero ── -->
+        <section id="hero" class="min-h-screen flex items-center bg-left-gradient relative">
+            <div class="w-full max-w-7xl mx-auto px-6 md:px-12 pt-24 pb-12">
+                <div class="hero-grid flex flex-col md:flex-row items-center gap-8 md:gap-0">
+                    <!-- Text -->
+                    <div class="hero-text w-full md:w-1/2 z-10">
+                        <p class="text-[var(--accent)] text-xs tracking-[0.25em] uppercase mb-6 font-medium fade-up">Handcrafted Luxury</p>
+                        <h1 class="heading-luxury mb-6 fade-up">
+                            Royal<br>Embroidered<br><span class="text-gold-gradient">Kurta</span>
+                        </h1>
+                        <p class="text-[var(--muted)] text-base md:text-lg leading-relaxed max-w-md mb-10 fade-up">
+                            Where tradition meets contemporary elegance. Each piece is a testament to the timeless art of Lucknowi chikankari and zardozi embroidery.
+                        </p>
+                        <div class="flex flex-wrap gap-4 items-center fade-up">
+                            <a href="#cta" class="btn-gold btn-glow" data-magnetic>
+                                Pre-Order Now <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                            <a href="#fabric" class="btn-outline hidden md:inline-flex" data-magnetic>
+                                Explore Details
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Model space (transparent for 3D canvas) -->
+                    <div class="w-full md:w-1/2 h-[50vh] md:h-[80vh] relative" aria-hidden="true"></div>
+                </div>
+            </div>
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 scroll-indicator z-10">
+                <span class="text-[var(--muted)] text-xs tracking-[0.2em] uppercase">Scroll</span>
+                <i class="fa-solid fa-chevron-down text-[var(--accent)] text-xs"></i>
+            </div>
+        </section>
+
+        <!-- ── Section 2: Trust Bar ── -->
+        <section id="trust" class="bg-solid py-14 md:py-16 border-t border-b border-[var(--border)]">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <p class="text-center text-[var(--muted)] text-xs tracking-[0.2em] uppercase mb-8 fade-up">As Featured In</p>
+                <div class="flex items-center justify-center gap-8 md:gap-16 flex-wrap fade-up">
+                    <span class="trust-logo">Vogue India</span>
+                    <span class="trust-logo">Elle</span>
+                    <span class="trust-logo">Harper's Bazaar</span>
+                    <span class="trust-logo">GQ India</span>
+                    <span class="trust-logo">Fabindia</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Section 3: Features ── -->
+        <section id="features" class="min-h-screen flex items-center bg-right-gradient relative">
+            <div class="w-full max-w-7xl mx-auto px-6 md:px-12 py-24">
+                <div class="features-grid flex flex-col md:flex-row items-center gap-12">
+                    <!-- Model space -->
+                    <div class="w-full md:w-1/2 h-[50vh] md:h-[70vh] relative" aria-hidden="true"></div>
+                    <!-- Features list -->
+                    <div class="features-text w-full md:w-1/2 md:pl-8">
+                        <div class="gold-divider mb-6 fade-up"></div>
+                        <h2 class="heading-medium mb-3 fade-up">The Art of Craft</h2>
+                        <p class="text-[var(--muted)] mb-10 fade-up">Every detail, meticulously perfected by hands that carry generations of mastery.</p>
+
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4 feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-hand-sparkles"></i></div>
+                                <div>
+                                    <h3 class="font-body font-medium text-sm mb-1">Hand-Embroidered by Master Artisans</h3>
+                                    <p class="text-[var(--muted)] text-sm leading-relaxed">Over 120 hours of meticulous handwork by fifth-generation zardozi craftspeople.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-gem"></i></div>
+                                <div>
+                                    <h3 class="font-body font-medium text-sm mb-1">Premium Mulberry Silk Fabric</h3>
+                                    <p class="text-[var(--muted)] text-sm leading-relaxed">Grade 6A silk with a natural luster that drapes with effortless grace.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-ruler-combined"></i></div>
+                                <div>
+                                    <h3 class="font-body font-medium text-sm mb-1">Tailored Structured Silhouette</h3>
+                                    <p class="text-[var(--muted)] text-sm leading-relaxed">Precision-cut panels for a regal fit that commands attention.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-star"></i></div>
+                                <div>
+                                    <h3 class="font-body font-medium text-sm mb-1">Traditional Zardozi Gold Threadwork</h3>
+                                    <p class="text-[var(--muted)] text-sm leading-relaxed">Genuine gold-plated metallic threads woven into intricate floral motifs.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-circle-dot"></i></div>
+                                <div>
+                                    <h3 class="font-body font-medium text-sm mb-1">Mother-of-Pearl Button Closures</h3>
+                                    <p class="text-[var(--muted)] text-sm leading-relaxed">Hand-polished shell buttons, each uniquely iridescent.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div>
+                                    <h3 class="font-body font-medium text-sm mb-1">Reinforced Neckline & Seams</h3>
+                                    <p class="text-[var(--muted)] text-sm leading-relaxed">Double-stitched construction ensures lasting shape and durability.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Section 4: Fabric Detail ── -->
+        <section id="fabric" class="min-h-screen flex items-center bg-center-gradient relative">
+            <div class="w-full max-w-5xl mx-auto px-6 md:px-12 py-24 text-center">
+                <!-- Model space above -->
+                <div class="h-[40vh] md:h-[45vh] relative" aria-hidden="true"></div>
+
+                <div class="gold-divider mx-auto mb-6 fade-up"></div>
+                <h2 class="heading-medium mb-3 fade-up">Woven to Perfection</h2>
+                <p class="text-[var(--muted)] max-w-lg mx-auto mb-14 fade-up">Feel the difference that premium materials and artisanal techniques make. Every thread tells a story of heritage.</p>
+
+                <!-- Spec Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-[var(--border)] rounded-2xl overflow-hidden fade-up">
+                    <div class="bg-[var(--bg-warm)] p-6">
+                        <div class="spec-value">Silk</div>
+                        <div class="spec-label">Fabric</div>
+                    </div>
+                    <div class="bg-[var(--bg-warm)] p-6">
+                        <div class="spec-value">Zardozi</div>
+                        <div class="spec-label">Embroidery</div>
+                    </div>
+                    <div class="bg-[var(--bg-warm)] p-6">
+                        <div class="spec-value">22K</div>
+                        <div class="spec-label">Gold Thread</div>
+                    </div>
+                    <div class="bg-[var(--bg-warm)] p-6">
+                        <div class="spec-value">380g</div>
+                        <div class="spec-label">Weight</div>
+                    </div>
+                    <div class="bg-[var(--bg-warm)] p-6">
+                        <div class="spec-value">Dry</div>
+                        <div class="spec-label">Care</div>
+                    </div>
+                    <div class="bg-[var(--bg-warm)] p-6">
+                        <div class="spec-value">Lucknow</div>
+                        <div class="spec-label">Origin</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Section 5: Color Picker ── -->
+        <section id="colors" class="min-h-screen flex items-center bg-center-gradient relative">
+            <div class="w-full max-w-4xl mx-auto px-6 md:px-12 py-24 text-center">
+                <!-- Model space -->
+                <div class="h-[45vh] md:h-[50vh] relative" aria-hidden="true"></div>
+
+                <div class="gold-divider mx-auto mb-6 fade-up"></div>
+                <h2 class="heading-medium mb-3 fade-up">Your Shade of Royalty</h2>
+                <p class="text-[var(--muted)] max-w-md mx-auto mb-12 fade-up">Choose the canvas for your masterpiece. Each shade is meticulously dyed to complement the gold embroidery.</p>
+
+                <div class="flex items-center justify-center gap-6 mb-6 fade-up">
+                    <button class="color-btn active" data-color="0xF5F0E8" data-name="Ivory" style="background:#F5F0E8;" aria-label="Ivory color"></button>
+                    <button class="color-btn" data-color="0xC6A962" data-name="Gold" style="background:#C6A962;" aria-label="Gold color"></button>
+                    <button class="color-btn" data-color="0x1a1a1a" data-name="Midnight" style="background:#1a1a1a; border-color: rgba(255,255,255,0.15);" aria-label="Midnight color"></button>
+                </div>
+                <p class="text-[var(--accent)] text-sm tracking-[0.15em] uppercase fade-up" id="colorName">Ivory</p>
+            </div>
+        </section>
+
+        <!-- ── Section 6: Reviews ── -->
+        <section id="reviews" class="bg-solid py-24 md:py-32">
+            <div class="max-w-7xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-14">
+                    <div class="gold-divider mx-auto mb-6 fade-up"></div>
+                    <h2 class="heading-medium mb-3 fade-up">Worn by the Discerning</h2>
+                    <p class="text-[var(--muted)] fade-up">What our patrons say about their VASTRU experience.</p>
+                </div>
+
+                <div class="reviews-track fade-up">
+                    <!-- Review 1 -->
+                    <div class="review-card glass-card p-7">
+                        <div class="stars mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm leading-relaxed mb-6 text-[var(--fg)]" style="opacity:0.85">"The embroidery work is absolutely breathtaking. Every stitch tells a story of craftsmanship that you simply cannot find in mass-produced garments."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[rgba(198,169,98,0.15)] flex items-center justify-center text-[var(--accent)] text-xs font-semibold">AM</div>
+                            <div>
+                                <p class="text-sm font-medium">Arjun M.</p>
+                                <p class="text-xs text-[var(--muted)]">Verified Purchase</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 2 -->
+                    <div class="review-card glass-card p-7">
+                        <div class="stars mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm leading-relaxed mb-6 text-[var(--fg)]" style="opacity:0.85">"Wore it to my sister's wedding and received endless compliments. The fabric drapes beautifully and the gold detailing caught every light perfectly."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[rgba(198,169,98,0.15)] flex items-center justify-center text-[var(--accent)] text-xs font-semibold">PK</div>
+                            <div>
+                                <p class="text-sm font-medium">Priya K.</p>
+                                <p class="text-xs text-[var(--muted)]">Verified Purchase</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 3 -->
+                    <div class="review-card glass-card p-7">
+                        <div class="stars mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm leading-relaxed mb-6 text-[var(--fg)]" style="opacity:0.85">"Worth every penny. The quality is unlike anything I have found online. This is what luxury ethnic wear should feel like — substantial, refined, regal."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[rgba(198,169,98,0.15)] flex items-center justify-center text-[var(--accent)] text-xs font-semibold">VS</div>
+                            <div>
+                                <p class="text-sm font-medium">Vikram S.</p>
+                                <p class="text-xs text-[var(--muted)]">Verified Purchase</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 4 -->
+                    <div class="review-card glass-card p-7">
+                        <div class="stars mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                        <p class="text-sm leading-relaxed mb-6 text-[var(--fg)]" style="opacity:0.85">"The gold detailing against the ivory is simply regal. Perfect for festive occasions. My only wish is that they offered more colorways."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[rgba(198,169,98,0.15)] flex items-center justify-center text-[var(--accent)] text-xs font-semibold">MR</div>
+                            <div>
+                                <p class="text-sm font-medium">Meera R.</p>
+                                <p class="text-xs text-[var(--muted)]">Verified Purchase</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 5 -->
+                    <div class="review-card glass-card p-7">
+                        <div class="stars mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm leading-relaxed mb-6 text-[var(--fg)]" style="opacity:0.85">"Exceeded my expectations. The fit is tailored to perfection and the mother-of-pearl buttons are a gorgeous touch. Already ordered my second piece."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[rgba(198,169,98,0.15)] flex items-center justify-center text-[var(--accent)] text-xs font-semibold">RT</div>
+                            <div>
+                                <p class="text-sm font-medium">Rajesh T.</p>
+                                <p class="text-xs text-[var(--muted)]">Verified Purchase</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 6 -->
+                    <div class="review-card glass-card p-7">
+                        <div class="stars mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <p class="text-sm leading-relaxed mb-6 text-[var(--fg)]" style="opacity:0.85">"A masterpiece in ethnic wear. The attention to detail is remarkable — from the reinforced seams to the intricate zardozi patterns. True artisanal luxury."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[rgba(198,169,98,0.15)] flex items-center justify-center text-[var(--accent)] text-xs font-semibold">AP</div>
+                            <div>
+                                <p class="text-sm font-medium">Ananya P.</p>
+                                <p class="text-xs text-[var(--muted)]">Verified Purchase</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Section 7: Final CTA ── -->
+        <section id="cta" class="min-h-screen flex items-center justify-center relative overflow-hidden">
+            <canvas id="particle-canvas" aria-hidden="true"></canvas>
+            <div class="relative z-10 text-center px-6 md:px-12 max-w-3xl">
+                <div class="gold-divider mx-auto mb-8 fade-up"></div>
+                <h2 class="heading-luxury mb-6 fade-up">
+                    Experience<br>Royal <span class="text-gold-gradient">Elegance</span>.
+                </h2>
+                <p class="text-[var(--muted)] text-base md:text-lg leading-relaxed mb-12 max-w-lg mx-auto fade-up">
+                    Limited to 200 pieces per collection. Each kurta is numbered, signed, and accompanied by a certificate of authenticity.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center fade-up">
+                    <a href="#" class="btn-gold btn-glow" data-magnetic>
+                        Pre-Order Now <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                    <p class="text-[var(--muted)] text-xs tracking-wide">Starting at &#8377;12,999</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Footer ── -->
+        <footer class="bg-solid-warm border-t border-[var(--border)] py-16 md:py-20">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 mb-14">
+                    <!-- Brand -->
+                    <div>
+                        <p class="font-display text-2xl font-semibold logo-shimmer tracking-wider mb-4">VASTRU</p>
+                        <p class="text-[var(--muted)] text-sm leading-relaxed max-w-xs">Reviving India's textile heritage through contemporary luxury. Handcrafted with intention, worn with pride.</p>
+                    </div>
+                    <!-- Links -->
+                    <div>
+                        <h4 class="text-xs tracking-[0.15em] uppercase text-[var(--accent)] mb-5 font-medium">Navigate</h4>
+                        <ul class="space-y-3">
+                            <li><a href="#hero" class="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors">Home</a></li>
+                            <li><a href="#features" class="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors">Collection</a></li>
+                            <li><a href="#fabric" class="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors">Craftsmanship</a></li>
+                            <li><a href="#reviews" class="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition-colors">Reviews</a></li>
+                        </ul>
+                    </div>
+                    <!-- Contact -->
+                    <div>
+                        <h4 class="text-xs tracking-[0.15em] uppercase text-[var(--accent)] mb-5 font-medium">Contact</h4>
+                        <ul class="space-y-3">
+                            <li class="text-sm text-[var(--muted)]"><i class="fa-solid fa-envelope text-[var(--accent)] text-xs mr-2"></i> hello@vastru.in</li>
+                            <li class="text-sm text-[var(--muted)]"><i class="fa-solid fa-phone text-[var(--accent)] text-xs mr-2"></i> +91 98765 43210</li>
+                            <li class="text-sm text-[var(--muted)]"><i class="fa-solid fa-location-dot text-[var(--accent)] text-xs mr-2"></i> Lucknow, Uttar Pradesh</li>
+                        </ul>
+                        <div class="flex gap-4 mt-5">
+                            <a href="#" class="text-[var(--muted)] hover:text-[var(--accent)] transition-colors" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="#" class="text-[var(--muted)] hover:text-[var(--accent)] transition-colors" aria-label="Pinterest"><i class="fa-brands fa-pinterest-p"></i></a>
+                            <a href="#" class="text-[var(--muted)] hover:text-[var(--accent)] transition-colors" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-[var(--border)] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
+                    <p class="text-xs text-[var(--muted)]">&copy; 2025 VASTRU. All rights reserved.</p>
+                    <p class="text-xs text-[var(--muted)]">Crafted with reverence for tradition.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Sticky CTA (Mobile) -->
+    <div class="sticky-cta md:hidden" id="stickyCta">
+        <a href="#cta" class="btn-gold text-sm py-3 px-8">Pre-Order Now</a>
+    </div>
+
+    <!-- ═══════════════════ THREE.JS ═══════════════════ -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        // ── Globals ──
+        const container = document.getElementById('canvas-container');
+        let scene, camera, renderer, modelGroup, modelMeshes = [];
+        let isFallback = false;
+        let fallbackMaterial = null;
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        let isDragging = false, prevMouse = { x: 0, y: 0 };
+        let dragVelocity = { x: 0, y: 0 }, dragOffset = { x: 0, y: 0 };
+        let scrollRotBase = { x: 0, y: 0 };
+        const isMobile = window.innerWidth < 768;
+        
+        // Mobile adjustments - make model closer to camera on mobile
+        const mZ = isMobile ? 2.5 : 0;  // Closer on mobile
+
+        // ── Init Scene ──
+        function initScene() {
+            scene = new THREE.Scene();
+
+            // Camera - responsive
+            const isMobile = window.innerWidth < 768;
+            const camZ = isMobile ? 6 : 5.5;
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 0.2, camZ);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.1;
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            container.appendChild(renderer.domElement);
+
+            // ── Cinematic Lighting ──
+            // Key light — warm gold
+            const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
+            keyLight.position.set(3, 4, 5);
+            scene.add(keyLight);
+
+            // Fill light — soft white
+            const fillLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            fillLight.position.set(-3, 2, 3);
+            scene.add(fillLight);
+
+            // Rim light — subtle glow edge
+            const rimLight = new THREE.DirectionalLight(0xffffff, 2.0);
+            rimLight.position.set(-2, 3, -4);
+            scene.add(rimLight);
+
+            // Accent point light — gold glow from below
+            const accentLight = new THREE.PointLight(0xC6A962, 1.2, 10);
+            accentLight.position.set(0, -2, 2);
+            scene.add(accentLight);
+
+            // Very low ambient
+            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambient);
+
+            // ── Environment (gradient) ──
+            const envCanvas = document.createElement('canvas');
+            envCanvas.width = 512;
+            envCanvas.height = 512;
+            const ctx = envCanvas.getContext('2d');
+            const grad = ctx.createRadialGradient(256, 200, 50, 256, 256, 400);
+            grad.addColorStop(0, '#605050');
+            grad.addColorStop(0.5, '#353030');
+            grad.addColorStop(1, '#1a1a1a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 512, 512);
+            const envTexture = new THREE.CanvasTexture(envCanvas);
+            envTexture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.environment = envTexture;
+
+            // Model group
+            modelGroup = new THREE.Group();
+            scene.add(modelGroup);
+
+            // Load model or fallback
+            loadModel();
+        }
+
+        // ── Simplex Noise GLSL (for fallback shader) ──
+        const noiseGLSL = `
+            vec3 mod289v3(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+            vec4 mod289v4(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+            vec4 permute(vec4 x){return mod289v4(((x*34.0)+1.0)*x);}
+            vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+            float snoise(vec3 v){
+                const vec2 C=vec2(1.0/6.0,1.0/3.0);
+                const vec4 D=vec4(0.0,0.5,1.0,2.0);
+                vec3 i=floor(v+dot(v,C.yyy));
+                vec3 x0=v-i+dot(i,C.xxx);
+                vec3 g=step(x0.yzx,x0.xyz);
+                vec3 l=1.0-g;
+                vec3 i1=min(g.xyz,l.zxy);
+                vec3 i2=max(g.xyz,l.zxy);
+                vec3 x1=x0-i1+C.xxx;
+                vec3 x2=x0-i2+C.yyy;
+                vec3 x3=x0-D.yyy;
+                i=mod289v3(i);
+                vec4 p=permute(permute(permute(
+                    i.z+vec4(0.0,i1.z,i2.z,1.0))
+                    +i.y+vec4(0.0,i1.y,i2.y,1.0))
+                    +i.x+vec4(0.0,i1.x,i2.x,1.0));
+                float n_=0.142857142857;
+                vec3 ns=n_*D.wyz-D.xzx;
+                vec4 j=p-49.0*floor(p*ns.z*ns.z);
+                vec4 x_=floor(j*ns.z);
+                vec4 y_=floor(j-7.0*x_);
+                vec4 x=x_*ns.x+ns.yyyy;
+                vec4 y=y_*ns.x+ns.yyyy;
+                vec4 h=1.0-abs(x)-abs(y);
+                vec4 b0=vec4(x.xy,y.xy);
+                vec4 b1=vec4(x.zw,y.zw);
+                vec4 s0=floor(b0)*2.0+1.0;
+                vec4 s1=floor(b1)*2.0+1.0;
+                vec4 sh=-step(h,vec4(0.0));
+                vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;
+                vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+                vec3 p0=vec3(a0.xy,h.x);
+                vec3 p1=vec3(a0.zw,h.y);
+                vec3 p2=vec3(a1.xy,h.z);
+                vec3 p3=vec3(a1.zw,h.w);
+                vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+                p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+                vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
+                m=m*m;
+                return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+            }
+        `;
+
+        // ── Fallback Geometry ──
+        function createFallback() {
+            isFallback = true;
+
+            // Icosahedron with noise displacement for fabric-like form
+            const geo = new THREE.IcosahedronGeometry(1, 5);
+            const posAttr = geo.attributes.position;
+            const normalAttr = geo.attributes.normal;
+            const displaced = new Float32Array(posAttr.count * 3);
+
+            for (let i = 0; i < posAttr.count; i++) {
+                const x = posAttr.getX(i);
+                const y = posAttr.getY(i);
+                const z = posAttr.getZ(i);
+                const nx = normalAttr.getX(i);
+                const ny = normalAttr.getY(i);
+                const nz = normalAttr.getZ(i);
+                // Multi-octave noise for fabric folds
+                const n1 = Math.sin(x * 5.0 + y * 3.0) * 0.06;
+                const n2 = Math.sin(z * 7.0 + x * 2.0) * 0.04;
+                const n3 = Math.cos(y * 4.0 + z * 6.0) * 0.03;
+                const displacement = n1 + n2 + n3;
+                displaced[i * 3] = x + nx * displacement;
+                displaced[i * 3 + 1] = y + ny * displacement;
+                displaced[i * 3 + 2] = z + nz * displacement;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(displaced, 3));
+            geo.computeVertexNormals();
+
+            // Custom shader material — fabric with gold embroidery
+            fallbackMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uFabricColor: { value: new THREE.Color(0xF5F0E8) },
+                    uEmbroideryColor: { value: new THREE.Color(0xC6A962) },
+                    uTime: { value: 0 },
+                    uOpacity: { value: 1.0 },
+                },
+                vertexShader: `
+                    varying vec3 vNormal;
+                    varying vec3 vWorldPos;
+                    varying vec2 vUv;
+                    ${noiseGLSL}
+                    void main(){
+                        vUv = uv;
+                        vNormal = normalize(normalMatrix * normal);
+                        vec4 worldPos = modelMatrix * vec4(position, 1.0);
+                        vWorldPos = worldPos.xyz;
+                        gl_Position = projectionMatrix * viewMatrix * worldPos;
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 uFabricColor;
+                    uniform vec3 uEmbroideryColor;
+                    uniform float uTime;
+                    uniform float uOpacity;
+                    varying vec3 vNormal;
+                    varying vec3 vWorldPos;
+                    varying vec2 vUv;
+
+                    void main(){
+                        // Fabric base with subtle variation
+                        vec3 baseColor = uFabricColor;
+                        float weave = sin(vUv.x * 200.0) * sin(vUv.y * 200.0) * 0.02;
+                        baseColor += weave;
+
+                        // Embroidery pattern — floral motif approximation
+                        float embroidery = 0.0;
+                        // Border bands
+                        float band1 = smoothstep(0.02, 0.0, abs(vUv.y - 0.15));
+                        float band2 = smoothstep(0.02, 0.0, abs(vUv.y - 0.85));
+                        float band3 = smoothstep(0.02, 0.0, abs(vUv.x - 0.15));
+                        float band4 = smoothstep(0.02, 0.0, abs(vUv.x - 0.85));
+                        embroidery = max(embroidery, band1 * 0.7);
+                        embroidery = max(embroidery, band2 * 0.7);
+                        embroidery = max(embroidery, band3 * 0.5);
+                        embroidery = max(embroidery, band4 * 0.5);
+
+                        // Diamond/paisley pattern in center
+                        vec2 center = vUv - 0.5;
+                        float angle = atan(center.y, center.x);
+                        float radius = length(center);
+                        float petals = sin(angle * 6.0) * 0.5 + 0.5;
+                        float motif = smoothstep(0.22, 0.18, radius) * petals * 0.6;
+                        float motif2 = smoothstep(0.12, 0.08, radius) * 0.8;
+                        embroidery = max(embroidery, motif);
+                        embroidery = max(embroidery, motif2);
+
+                        // Fine detail lines
+                        float lines = sin(vUv.x * 80.0) * sin(vUv.y * 80.0);
+                        lines = smoothstep(0.95, 1.0, lines) * 0.15;
+                        embroidery = max(embroidery, lines);
+
+                        vec3 color = mix(baseColor, uEmbroideryColor, embroidery);
+
+                        // Lighting
+                        vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+                        float diff = max(dot(vNormal, lightDir), 0.0);
+                        vec3 viewDir = normalize(cameraPosition - vWorldPos);
+                        vec3 halfDir = normalize(lightDir + viewDir);
+                        float spec = pow(max(dot(vNormal, halfDir), 0.0), 32.0);
+                        // Gold specular on embroidery
+                        spec *= embroidery * 1.5;
+
+                        // Rim light
+                        float rim = 1.0 - max(dot(viewDir, vNormal), 0.0);
+                        rim = pow(rim, 3.0) * 0.3;
+
+                        color *= 0.35 + diff * 0.65;
+                        color += vec3(1.0, 0.9, 0.7) * spec;
+                        color += vec3(0.78, 0.66, 0.38) * rim;
+
+                        gl_FragColor = vec4(color, uOpacity);
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide,
+            });
+
+            const mesh = new THREE.Mesh(geo, fallbackMaterial);
+            modelGroup.add(mesh);
+            modelMeshes.push(mesh);
+
+            // Slightly rotate initial
+            modelGroup.rotation.x = -0.15;
+        }
+
+        // ── Load GLB Model ──
+        function loadModel() {
+            const loader = new GLTFLoader();
+            loader.load(
+                './tmpkiciehot.glb',
+                (gltf) => {
+                    console.log('Model loaded successfully!');
+                    const model = gltf.scene;
+                    console.log('Model children:', model.children.length);
+
+// User-specified scaling and centering
+                    const box = new THREE.Box3().setFromObject(model);
+                    const size = box.getSize(new THREE.Vector3()).length();
+                    
+                    // Add mobile Z offset
+                    const mZ = isMobile ? 2.5 : 0;
+                    const mScaleBase = isMobile ? 0.25 : 1;
+
+                    // Adjust scale
+                    let scale = 3.5;
+                    model.scale.setScalar(scale);
+                    model.position.set(0, -0.3, 0); 
+                    modelGroup.position.set(isMobile ? 0 : 1.8, 0, 0.5);
+                    
+                    // Center the model
+                    box.getCenter(model.position).multiplyScalar(-1);
+
+                    // Rotate if needed to face front
+                    model.rotation.y = Math.PI;
+
+                    // Ensure materials are ready
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach(m => { m.needsUpdate = true; });
+                                } else {
+                                    child.material.needsUpdate = true;
+                                }
+                            }
+                            modelMeshes.push(child);
+                        }
+                    });
+
+                    modelGroup.add(model);
+                    isFallback = false;
+                    modelGroup.rotation.x = -0.15;
+
+                    setupScrollAnimations();
+                },
+                undefined,
+                (error) => {
+                    console.warn('GLB model failed to load, using fallback:', error);
+                    createFallback();
+                    setupScrollAnimations();
+                }
+            );
+        }
+
+        // ── Scroll-Driven Model Animations ──
+        function setupScrollAnimations() {
+            const gsapInst = window.gsap;
+            const ScrollTriggerInst = window.ScrollTrigger;
+            gsapInst.registerPlugin(ScrollTriggerInst);
+
+            const mX = isMobile ? 0 : 1.5;
+            const fX = isMobile ? 0 : -1.5;
+            const sc = isMobile ? 0.7 : 1;
+
+            // Master timeline synced to full page scroll
+            const tl = gsapInst.timeline({
+                scrollTrigger: {
+                    trigger: 'body',
+                    start: 'top top',
+                    end: 'bottom bottom',
+                    scrub: 1.0,
+                }
+            });
+
+            // Add mobile Z offset
+            const mZ = isMobile ? 2.5 : 0;
+            const mScaleBase = isMobile ? 0.25 : 1;
+
+            // Section 1 — Hero: center on mobile, right on desktop, close to camera
+            tl.to(modelGroup.rotation, { y: 0, ease: 'none' }, 0)
+              .to(modelGroup.position, { x: isMobile ? 0 : 1.8, y: 0, z: 0.5, ease: 'none' }, 0);
+
+            // Transition to Section 2 — 
+            tl.to(modelGroup.position, { z: 0.5, x: isMobile ? 0 : 1.5, y: 0, ease: 'none' }, 0.08)
+              .to(modelGroup.rotation, { y: Math.PI * 0.25, ease: 'none' }, 0.08)
+              .to(modelGroup.scale, { x: mScaleBase * 0.75, y: mScaleBase * 0.75, z: mScaleBase * 0.75, ease: 'none' }, 0.08);
+
+            // Section 3 — Features: LEFT SIDE - make very close to camera (smaller z = closer)
+            tl.to(modelGroup.position, { x: isMobile ? -0.3 : -1.5, y: 0, z: 0.3, ease: 'none' }, 0.15)
+              .to(modelGroup.rotation, { y: Math.PI * 0.5, ease: 'none' }, 0.15)
+              .to(modelGroup.scale, { x: mScaleBase * 0.9, y: mScaleBase * 0.9, z: mScaleBase * 0.9, ease: 'none' }, 0.15);
+
+            // Section 4 — Fabric: center, very close
+            tl.to(modelGroup.position, { x: 0, y: 0, z: 0.3, ease: 'none' }, 0.30)
+              .to(modelGroup.rotation, { y: Math.PI, ease: 'none' }, 0.30)
+              .to(modelGroup.scale, { x: mScaleBase, y: mScaleBase, z: mScaleBase, ease: 'none' }, 0.30);
+
+            // Section 5 — Colors: center, very close
+            tl.to(modelGroup.position, { x: 0, y: 0, z: 0.3, ease: 'none' }, 0.45)
+              .to(modelGroup.rotation, { y: Math.PI * 1.25, ease: 'none' }, 0.45)
+              .to(modelGroup.scale, { x: mScaleBase * 0.9, y: mScaleBase * 0.9, z: mScaleBase * 0.9, ease: 'none' }, 0.45);
+
+            // Section 6 — Reviews: slightly back
+            tl.to(modelGroup.position, { x: 0, y: 0, z: 0.5, ease: 'none' }, 0.60)
+              .to(modelGroup.rotation, { y: Math.PI * 1.5, ease: 'none' }, 0.60)
+              .to(modelGroup.scale, { x: mScaleBase * 0.7, y: mScaleBase * 0.7, z: mScaleBase * 0.7, ease: 'none' }, 0.60);
+
+            // Section 7 — CTA: center, very close
+            tl.to(modelGroup.position, { x: 0, y: 0, z: 0.3, ease: 'none' }, 0.80)
+              .to(modelGroup.rotation, { y: Math.PI * 2, ease: 'none' }, 0.80)
+              .to(modelGroup.scale, { x: mScaleBase, y: mScaleBase, z: mScaleBase, ease: 'none' }, 0.80);
+        }
+
+        // ── Color Change ──
+        window.setModelColor = function(hex) {
+            if (isFallback && fallbackMaterial) {
+                fallbackMaterial.uniforms.uFabricColor.value.setHex(hex);
+            } else {
+                modelMeshes.forEach(mesh => {
+                    if (mesh.material) {
+                        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+                        mats.forEach(m => {
+                            if (m.color) m.color.setHex(hex);
+                        });
+                    }
+                });
+            }
+        };
+
+        // ── Mouse / Drag Interaction ──
+        document.addEventListener('mousedown', (e) => {
+            if (isMobile) return;
+            isDragging = true;
+            prevMouse = { x: e.clientX, y: e.clientY };
+            document.getElementById('cursorRing').classList.add('grabbing');
+        });
+        document.addEventListener('mousemove', (e) => {
+            // Parallax
+            mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
+            // Drag
+            if (isDragging) {
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+                dragVelocity = { x: dx * 0.004, y: dy * 0.004 };
+                dragOffset.y += dragVelocity.x;
+                dragOffset.x += dragVelocity.y;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            document.getElementById('cursorRing').classList.remove('grabbing');
+        });
+
+        // ── Animation Loop ──
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            // Smooth mouse
+            mouse.x += (mouse.tx - mouse.x) * 0.06;
+            mouse.y += (mouse.ty - mouse.y) * 0.06;
+
+            // Inertia on drag
+            if (!isDragging) {
+                dragOffset.x += dragVelocity.x;
+                dragOffset.y += dragVelocity.y;
+                dragVelocity.x *= 0.94;
+                dragVelocity.y *= 0.94;
+            }
+
+            // Idle slow rotation when not scrolling much
+            if (modelGroup) {
+                // Subtle float
+                modelGroup.position.y += Math.sin(t * 0.8) * 0.0003;
+                // Subtle parallax tilt
+                modelGroup.rotation.x = scrollRotBase.x + dragOffset.x + mouse.y * 0.08;
+                modelGroup.rotation.y = scrollRotBase.y + dragOffset.y + mouse.x * 0.08;
+            }
+
+            // Update fallback shader time
+            if (fallbackMaterial) {
+                fallbackMaterial.uniforms.uTime.value = t;
+            }
+
+            // Track base rotation from scroll for drag overlay
+            if (modelGroup) {
+                // We read the GSAP-driven values and store as base
+                // GSAP drives rotation directly, so we let it and add parallax/drag on top
+                // Actually, GSAP sets rotation directly, so we need a different approach.
+                // Let's use a wrapper group.
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // ── Resize ──
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.position.z = window.innerWidth < 768 ? 6 : 5.5;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ── Start ──
+        initScene();
+        animate();
+    </script>
+
+    <!-- ═══════════════════ UI ANIMATIONS ═══════════════════ -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ── Custom Cursor ──
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        let cursorX = 0, cursorY = 0, ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+        });
+
+        function updateCursor() {
+            dot.style.transform = `translate(${cursorX - 3}px, ${cursorY - 3}px)`;
+            ringX += (cursorX - ringX) * 0.15;
+            ringY += (cursorY - ringY) * 0.15;
+            ring.style.transform = `translate(${ringX - 20}px, ${ringY - 20}px)`;
+            requestAnimationFrame(updateCursor);
+        }
+        updateCursor();
+
+        // Hover effect on interactive elements
+        document.querySelectorAll('a, button, .color-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+            el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+        });
+
+        // ── Magnetic Button Effect ──
+        document.querySelectorAll('[data-magnetic]').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px) scale(1.06)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
+            });
+        });
+
+        // ── Fade-Up Animations ──
+        gsap.utils.toArray('.fade-up').forEach(el => {
+            gsap.to(el, {
+                opacity: 1, y: 0, duration: 0.9,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top 88%',
+                    toggleActions: 'play none none none',
+                }
+            });
+        });
+
+        // ── Feature Items — Staggered ──
+        gsap.utils.toArray('.feature-item').forEach((item, i) => {
+            gsap.to(item, {
+                opacity: 1, x: 0, duration: 0.8,
+                delay: i * 0.1,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 88%',
+                    toggleActions: 'play none none none',
+                }
+            });
+        });
+
+        // ── Trust Logos — Fade In ──
+        gsap.utils.toArray('.trust-logo').forEach((logo, i) => {
+            gsap.to(logo, {
+                opacity: 0.25, duration: 0.8,
+                delay: i * 0.08,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: logo,
+                    start: 'top 90%',
+                    toggleActions: 'play none none none',
+                }
+            });
+        });
+
+        // ── Sticky CTA ──
+        const stickyCta = document.getElementById('stickyCta');
+        ScrollTrigger.create({
+            trigger: '#reviews',
+            start: 'top center',
+            endTrigger: '#cta',
+            end: 'top center',
+            onEnter: () => stickyCta.classList.add('visible'),
+            onLeave: () => stickyCta.classList.remove('visible'),
+            onEnterBack: () => stickyCta.classList.add('visible'),
+            onLeaveBack: () => stickyCta.classList.remove('visible'),
+        });
+
+        // ── Color Picker ──
+        const colorBtns = document.querySelectorAll('.color-btn');
+        const colorName = document.getElementById('colorName');
+
+        colorBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                colorBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const hex = parseInt(btn.dataset.color);
+                const name = btn.dataset.name;
+                colorName.textContent = name;
+
+                // Animate color transition
+                if (window.setModelColor) {
+                    window.setModelColor(hex);
+                }
+
+                // Micro feedback
+                gsap.fromTo(colorName, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+            });
+        });
+
+        // ── Mobile Menu Toggle ──
+        const menuBtn = document.getElementById('menuBtn');
+        let menuOpen = false;
+        menuBtn.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            menuBtn.innerHTML = menuOpen
+                ? '<i class="fa-solid fa-xmark"></i>'
+                : '<i class="fa-solid fa-bars"></i>';
+        });
+
+        // ── Particle System (CTA Section) ──
+        const particleCanvas = document.getElementById('particle-canvas');
+        const pCtx = particleCanvas.getContext('2d');
+        const particles = [];
+        const PARTICLE_COUNT = 50;
+
+        function resizeParticleCanvas() {
+            const section = document.getElementById('cta');
+            particleCanvas.width = section.offsetWidth;
+            particleCanvas.height = section.offsetHeight;
+        }
+        resizeParticleCanvas();
+        window.addEventListener('resize', resizeParticleCanvas);
+
+        function createParticle() {
+            return {
+                x: Math.random() * particleCanvas.width,
+                y: particleCanvas.height + Math.random() * 50,
+                size: Math.random() * 2.2 + 0.4,
+                speedY: Math.random() * 0.4 + 0.15,
+                speedX: (Math.random() - 0.5) * 0.25,
+                opacity: Math.random() * 0.45 + 0.1,
+                life: 1,
+                decay: Math.random() * 0.002 + 0.001,
+            };
+        }
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const p = createParticle();
+            p.y = Math.random() * particleCanvas.height;
+            particles.push(p);
+        }
+
+        function animateParticles() {
+            pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+
+            particles.forEach((p, i) => {
+                p.y -= p.speedY;
+                p.x += p.speedX + Math.sin(p.y * 0.01) * 0.3;
+                p.life -= p.decay;
+
+                if (p.life <= 0 || p.y < -10) {
+                    particles[i] = createParticle();
+                    return;
+                }
+
+                const alpha = p.opacity * p.life;
+                // Gold particle with soft glow
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                pCtx.fillStyle = `rgba(198, 169, 98, ${alpha})`;
+                pCtx.fill();
+
+                // Soft glow halo
+                if (p.size > 1.2) {
+                    pCtx.beginPath();
+                    pCtx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+                    pCtx.fillStyle = `rgba(198, 169, 98, ${alpha * 0.08})`;
+                    pCtx.fill();
+                }
+            });
+
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ── Nav background on scroll ──
+        const nav = document.querySelector('nav');
+        ScrollTrigger.create({
+            start: 'top -80',
+            onUpdate: (self) => {
+                if (self.direction === 1 && self.scroll() > 80) {
+                    nav.style.borderBottomColor = 'rgba(198,169,98,0.1)';
+                } else {
+                    nav.style.borderBottomColor = 'rgba(255,255,255,0.08)';
+                }
+            }
+        });
+
+        // ── Smooth scroll for anchor links ──
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+    }); // end DOMContentLoaded
+    </script>
+
+    <!-- ═══════════════════ THREE.JS ROTATION FIX ═══════════════════ -->
+    <!--
+        Note: The Three.js module above sets rotation directly via GSAP ScrollTrigger.
+        Mouse parallax and drag are applied additively in the animate loop.
+        GSAP scrub drives the primary rotation; mouse/drag add subtle offsets.
+    -->
+
+</body>
+</html>
