@@ -18,3 +18,4 @@ A premium 3D landing page for Kurta Royale, featuring an interactive 3D kurta mo
 - Tailwind CSS (CDN)
 - Three.js (3D rendering)
 - Vanilla JavaScript
+<img width="959" height="432" alt="image" src="https://github.com/user-attachments/assets/e2e4b54e-d9d7-40d6-959c-c6f845e3ef90" />
